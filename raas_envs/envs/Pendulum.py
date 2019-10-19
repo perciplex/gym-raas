@@ -34,6 +34,7 @@ class PendulumEnv(gym.Env):
 
 		self.max_speed = 8
 		self.max_torque = 2.0
+		self.dt = 0.05
 		self.state = None
 		high = np.array([1., 1., self.max_speed])
 		self.action_space = spaces.Box(low=-self.max_torque, high=self.max_torque, shape=(1,), dtype=np.float32)
@@ -46,7 +47,6 @@ class PendulumEnv(gym.Env):
 			self.motor = Motor()
 
 		else:
-			self.dt = 0.05
 			self.g = g
 			self.viewer = None
 
@@ -129,8 +129,9 @@ class PendulumEnv(gym.Env):
 			theta, thetadot = self.state
 			return np.array([np.cos(theta), np.sin(theta), thetadot])
 		elif self.hardware:
+			last_theta, _ = self.state
 			theta = self.encoder.getRadian()
-			thetadot = 0
+			thetadot = np.clip((theta - last_theta)/self.dt, -self.max_speed, self.max_speed)
 			return np.array([np.cos(theta), np.sin(theta), thetadot])
 
 	def render(self, mode="human"):
