@@ -32,6 +32,9 @@ class PendulumEnv(gym.Env):
 
 		self.hardware = hardware
 
+		self.max_speed = 8
+		self.max_torque = 2.0
+		
 		# Create Motor and Encoder object
 		if self.hardware:
 			from raasgym.driver import Encoder, Motor
@@ -42,8 +45,6 @@ class PendulumEnv(gym.Env):
 			self.reset()
 
 		else:
-			self.max_speed = 8
-			self.max_torque = 2.0
 			self.dt = 0.05
 			self.g = g
 			self.viewer = None
