@@ -72,14 +72,16 @@ class PendulumEnv(gym.Env):
 		th, thdot = self.state  # th := theta
 		costs = angle_normalize(th)**2 + .1*thdot**2 + .001*(u**2)
 
-		newthdot = thdot + (-3*g/(2*l) * np.sin(th + np.pi) + 3./(m*l**2)*u) * dt
-		newthdot = np.clip(newthdot, -self.max_speed, self.max_speed) #pylint: disable=E1111
 
 
 		if not self.hardware:
+			newthdot = thdot + (-3*g/(2*l) * np.sin(th + np.pi) + 3./(m*l**2)*u) * dt
+			newthdot = np.clip(newthdot, -self.max_speed, self.max_speed) #pylint: disable=E1111
 			newth = th + newthdot*dt
 
 		elif self.hardware:
+			newthdot = 0.5*(thdot + (-3*g/(2*l) * np.sin(th + np.pi) + 3./(m*l**2)*u) * dt)
+			newthdot = np.clip(newthdot, -self.max_speed, self.max_speed)
 			self.motor.set_pendulum_torque(u)
 			x, y, _ = self._get_obs()
 			newth = np.arctan2(y, x)
