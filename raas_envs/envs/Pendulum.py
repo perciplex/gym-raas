@@ -46,7 +46,7 @@ class PendulumEnv(gym.Env):
 			from raasgym.driver import Encoder, Motor
 			self.encoder = Encoder()
 			self.motor = Motor()
-
+			self.last_meas_time = None
 
 		else:
 			self.viewer = None
@@ -79,7 +79,7 @@ class PendulumEnv(gym.Env):
 			newth = th + newthdot*dt
 
 		elif self.hardware:
-			newth = thdot
+			newth = th
 			self.motor.set_pendulum_torque(u)
 			x, y, _ = self._get_obs()
 			newth = np.arctan2(y, x)
@@ -120,10 +120,16 @@ class PendulumEnv(gym.Env):
 		elif self.hardware:
 			last_theta, _ = self.state
 			theta = self.encoder.getRadian()
-			last_meas_time = self.last_meas_time
-			self.last_meas_time = time.time()
-			dt = self.last_meas_time - last_meas_time
-			thetadot = (theta - last_theta)/dt
+
+			if self.last_meas_time is None:
+				self.last_meas_time = time.time()
+				thetadot = 0
+			else:
+				last_meas_time = self.last_meas_time
+				self.last_meas_time = time.time()
+				dt = self.last_meas_time - last_meas_time
+				thetadot = (theta - last_theta)/dt
+
 			thetadot = np.clip(thetadot, -self.max_speed, self.max_speed)
 			return np.array([np.cos(theta), np.sin(theta), thetadot])
 
