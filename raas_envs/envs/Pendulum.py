@@ -118,10 +118,8 @@ class PendulumEnv(gym.Env):
 			theta, thetadot = self.state
 			return np.array([np.cos(theta), np.sin(theta), thetadot])
 		elif self.hardware:
-			last_theta, last_theta_dot = self.state
+			_, thetadot = self.state
 			theta = self.encoder.getRadian()
-			#thetadot = np.clip((theta - last_theta)/self.dt, -self.max_speed, self.max_speed)
-			newthdot = last_theta_dot + (-3*g/(2*l) * np.sin(th + np.pi) + 3./(m*l**2)*u) * dt
 			thetadot = np.clip(thetadot, -self.max_speed, self.max_speed)
 			return np.array([np.cos(theta), np.sin(theta), thetadot])
 
