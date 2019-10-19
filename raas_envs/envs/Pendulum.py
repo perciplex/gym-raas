@@ -62,41 +62,30 @@ class PendulumEnv(gym.Env):
 		return [seed]
 
 	def step(self, u):
+		g = self.g
+		m = 1.0
+		l = 1.0
+		dt = self.dt
+
+		u = np.clip(u, -self.max_torque, self.max_torque)[0]
+		self.last_u = u # for rendering
+		th, thdot = self.state  # th := theta
+		costs = angle_normalize(th)**2 + .1*thdot**2 + .001*(u**2)
+
+		newthdot = thdot + (-3*g/(2*l) * np.sin(th + np.pi) + 3./(m*l**2)*u) * dt
+		newthdot = np.clip(newthdot, -self.max_speed, self.max_speed) #pylint: disable=E1111
+
+
 		if not self.hardware:
-			th, thdot = self.state  # th := theta
-
-			g = self.g
-			m = 1.0
-			l = 1.0
-			dt = self.dt
-
-
-			u = np.clip(u, -self.max_torque, self.max_torque)[0]
-			self.last_u = u # for rendering
-			costs = angle_normalize(th)**2 + .1*thdot**2 + .001*(u**2)
-
-			newthdot = thdot + (-3*g/(2*l) * np.sin(th + np.pi) + 3./(m*l**2)*u) * dt
 			newth = th + newthdot*dt
-			newthdot = np.clip(newthdot, -self.max_speed, self.max_speed) #pylint: disable=E1111
-
-			self.state = np.array([newth, newthdot])
-			return self._get_obs(), -costs, False, {}
 
 		elif self.hardware:
-			u = np.clip(u, -self.max_torque, self.max_torque)[0]
-			self.last_u = u # for rendering
-			### CALCULATE REWARD
-			th, thdot = self.state
-			costs = angle_normalize(th) ** 2 + 0.1 * thdot ** 2 + 0.001 * (u ** 2)
-
 			self.motor.set_pendulum_torque(u)
-			### EXECUTE ACTION IN ROBOT
-			### GET NEXT STATE FROM MEASUREMENT
-			### update state
-			### RETURN:
-			### return self._get_obs(), -costs, False, {}
+			x, y, _ = self._get_obs()
+			newth = np.arctan2(y, x)
 
-			return self._get_obs(), costs, False, {}
+		self.state = np.array([newth, newthdot])
+		return self._get_obs(), costs, False, {}
 
 
 	def reset(self):
@@ -129,9 +118,11 @@ class PendulumEnv(gym.Env):
 			theta, thetadot = self.state
 			return np.array([np.cos(theta), np.sin(theta), thetadot])
 		elif self.hardware:
-			last_theta, _ = self.state
+			last_theta, last_theta_dot = self.state
 			theta = self.encoder.getRadian()
-			thetadot = np.clip((theta - last_theta)/self.dt, -self.max_speed, self.max_speed)
+			#thetadot = np.clip((theta - last_theta)/self.dt, -self.max_speed, self.max_speed)
+			newthdot = last_theta_dot + (-3*g/(2*l) * np.sin(th + np.pi) + 3./(m*l**2)*u) * dt
+			thetadot = np.clip(thetadot, -self.max_speed, self.max_speed)
 			return np.array([np.cos(theta), np.sin(theta), thetadot])
 
 	def render(self, mode="human"):
