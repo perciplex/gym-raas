@@ -35,6 +35,7 @@ class PendulumEnv(gym.Env):
 		self.max_speed = 8
 		self.max_torque = 2.0
 		self.dt = 0.05
+		self.g = g
 		self.state = None
 		high = np.array([1., 1., self.max_speed])
 		self.action_space = spaces.Box(low=-self.max_torque, high=self.max_torque, shape=(1,), dtype=np.float32)
@@ -47,7 +48,6 @@ class PendulumEnv(gym.Env):
 			self.motor = Motor()
 
 		else:
-			self.g = g
 			self.viewer = None
 
 			self.seed()
