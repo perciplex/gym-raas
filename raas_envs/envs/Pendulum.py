@@ -70,6 +70,7 @@ class PendulumEnv(gym.Env):
 
 		u = np.clip(u, -self.max_torque, self.max_torque)[0]
 		self.last_u = u # for rendering
+		self._get_obs()
 		th, thdot = self.state  # th := theta
 		costs = angle_normalize(th)**2 + .1*thdot**2 + .001*(u**2)
 
@@ -80,6 +81,7 @@ class PendulumEnv(gym.Env):
 
 		elif self.hardware:
 			newth = th
+			newthdot = thedot
 			self.motor.set_pendulum_torque(u)
 			x, y, _ = self._get_obs()
 			newth = np.arctan2(y, x)
