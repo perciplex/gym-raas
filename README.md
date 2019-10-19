@@ -9,7 +9,10 @@ cd raas-envs
 pip install -e .
 ```
 
+# Use
 
-
-
-
+```
+import gym
+import raas_envs
+env_pend = gym.make('pendulum-v0')
+```
