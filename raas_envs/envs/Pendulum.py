@@ -80,10 +80,8 @@ class PendulumEnv(gym.Env):
 			newth = th + newthdot*dt
 
 		elif self.hardware:
-			newth = th
-			newthdot = thedot
 			self.motor.set_pendulum_torque(u)
-			x, y, _ = self._get_obs()
+			x, y, newthdot = self._get_obs()
 			newth = np.arctan2(y, x)
 
 		self.state = np.array([newth, newthdot])
