@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 # What license are we?
 setuptools.setup(
-    name="raas-envs",
+    name="raas_envs",
     version="0.0.1",
     author="Max King, Benjamin Wiener, Declan Oller, Philip Zucker",
     author_email="team@perciplex.com",
