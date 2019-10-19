@@ -9,7 +9,7 @@ setuptools.setup(
     version="0.0.1",
     author="Max King, Benjamin Wiener, Declan Oller, Philip Zucker",
     author_email="team@perciplex.com",
-    description="A mock OpenAI gym library for use with the Perciplex RaaS platform",
+    description="Custom OpenAIgym environments for Perciplex RaaS platform",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/perciplex/raas-env",
