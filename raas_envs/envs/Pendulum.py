@@ -34,32 +34,26 @@ class PendulumEnv(gym.Env):
 
 		self.max_speed = 8
 		self.max_torque = 2.0
-		
+		self.state = None
+		high = np.array([1., 1., self.max_speed])
+		self.action_space = spaces.Box(low=-self.max_torque, high=self.max_torque, shape=(1,), dtype=np.float32)
+		self.observation_space = spaces.Box(low=-high, high=high, dtype=np.float32)
+
 		# Create Motor and Encoder object
 		if self.hardware:
 			from raasgym.driver import Encoder, Motor
 			self.encoder = Encoder()
 			self.motor = Motor()
 
-			# Do in init to get a self.state var
-			self.reset()
-
 		else:
 			self.dt = 0.05
 			self.g = g
 			self.viewer = None
-			self.state = None
-			self.hardware = hardware
-
-
-			high = np.array([1., 1., self.max_speed])
-			self.action_space = spaces.Box(low=-self.max_torque, high=self.max_torque, shape=(1,), dtype=np.float32)
-			self.observation_space = spaces.Box(low=-high, high=high, dtype=np.float32)
 
 			self.seed()
-			self.reset()
 			# See comment in random() below about random initial conditions.
 
+		self.reset()
 
 
 
