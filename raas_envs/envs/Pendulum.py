@@ -129,7 +129,10 @@ class PendulumEnv(gym.Env):
 				last_meas_time = self.last_meas_time
 				self.last_meas_time = time.time()
 				dt = self.last_meas_time - last_meas_time
-				thetadot = (theta - last_theta)/dt
+				dtheta = (theta - last_theta)
+				print('dtheta = {}'.format(dtheta))
+				print('dt = {}'.format(dt))
+				thetadot = dtheta/dt
 
 			thetadot = np.clip(thetadot, -self.max_speed, self.max_speed)
 			return np.array([np.cos(theta), np.sin(theta), thetadot])
