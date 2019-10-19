@@ -114,6 +114,7 @@ class PendulumEnv(gym.Env):
 			time.sleep(0.05)
 			theta = self.encoder.getRadian()
 			thetadot = 0
+			self.state = theta, thetadot
 			return self._get_obs()
 
 
