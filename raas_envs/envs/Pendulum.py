@@ -47,6 +47,7 @@ class PendulumEnv(gym.Env):
 			self.encoder = Encoder()
 			self.motor = Motor()
 
+
 		else:
 			self.viewer = None
 
@@ -72,16 +73,13 @@ class PendulumEnv(gym.Env):
 		th, thdot = self.state  # th := theta
 		costs = angle_normalize(th)**2 + .1*thdot**2 + .001*(u**2)
 
-
-
 		if not self.hardware:
 			newthdot = thdot + (-3*g/(2*l) * np.sin(th + np.pi) + 3./(m*l**2)*u) * dt
 			newthdot = np.clip(newthdot, -self.max_speed, self.max_speed) #pylint: disable=E1111
 			newth = th + newthdot*dt
 
 		elif self.hardware:
-			newthdot = 0.5*(thdot + (-3*g/(2*l) * np.sin(th + np.pi) + 3./(m*l**2)*u) * dt)
-			newthdot = np.clip(newthdot, -self.max_speed, self.max_speed)
+			newth = thdot
 			self.motor.set_pendulum_torque(u)
 			x, y, _ = self._get_obs()
 			newth = np.arctan2(y, x)
@@ -120,8 +118,12 @@ class PendulumEnv(gym.Env):
 			theta, thetadot = self.state
 			return np.array([np.cos(theta), np.sin(theta), thetadot])
 		elif self.hardware:
-			_, thetadot = self.state
+			last_theta, _ = self.state
 			theta = self.encoder.getRadian()
+			last_meas_time = self.last_meas_time
+			self.last_meas_time = time.time()
+			dt = self.last_meas_time - last_meas_time
+			thetadot = (theta - last_theta)/dt
 			thetadot = np.clip(thetadot, -self.max_speed, self.max_speed)
 			return np.array([np.cos(theta), np.sin(theta), thetadot])
 
