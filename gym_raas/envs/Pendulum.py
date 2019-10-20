@@ -43,7 +43,7 @@ class PendulumEnv(gym.Env):
 
 		# Create Motor and Encoder object
 		if self.hardware:
-			from gym_raas.driver import Encoder, Motor
+			from gym_raas.envs.driver import Encoder, Motor
 			self.encoder = Encoder()
 			self.motor = Motor()
 			#self.last_meas_time = None
