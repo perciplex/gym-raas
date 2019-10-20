@@ -5,7 +5,7 @@ Currently, we have the pendulum-v0 implementation.
 
 # Installation
 ```
-cd raas-envs
+cd gym_raas
 pip install -e .
 ```
 
@@ -13,6 +13,6 @@ pip install -e .
 
 ```
 import gym
-import raas_envs
+import gym_raas
 env_pend = gym.make('pendulum-v0')
 ```

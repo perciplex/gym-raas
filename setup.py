@@ -5,14 +5,14 @@ with open("README.md", "r") as fh:
 
 # What license are we?
 setuptools.setup(
-    name="raas_envs",
+    name="gym_raas",
     version="0.0.1",
     author="Max King, Benjamin Wiener, Declan Oller, Philip Zucker",
     author_email="team@perciplex.com",
-    description="Custom OpenAIgym environments for Perciplex RaaS platform",
+    description="Custom OpenAI gym environments for Perciplex RaaS platform",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/perciplex/raas-env",
+    url="https://github.com/perciplex/gym-raas",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
