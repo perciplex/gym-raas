@@ -46,7 +46,7 @@ class PendulumEnv(gym.Env):
 			from gym_raas.driver import Encoder, Motor
 			self.encoder = Encoder()
 			self.motor = Motor()
-			self.last_meas_time = None
+			#self.last_meas_time = None
 
 		else:
 			self.viewer = None
@@ -103,7 +103,7 @@ class PendulumEnv(gym.Env):
 			self.motor.stop()
 			time.sleep(0.05)
 			theta = self.encoder.getRadian()
-			thetadot = 0
+			thetadot = self.encoder.getRadPerSec()
 			self.state = theta, thetadot
 			return self._get_obs()
 
@@ -111,17 +111,16 @@ class PendulumEnv(gym.Env):
 
 
 	def _get_obs(self):
-		"""
-		This has to be replaced by some lower level raspi_robot.get_measurement()
-		function!
-		"""
+
 		if not self.hardware:
 			theta, thetadot = self.state
 			return np.array([np.cos(theta), np.sin(theta), thetadot])
 		elif self.hardware:
-			last_theta, _ = self.state
+			
 			theta = self.encoder.getRadian()
-
+			thetadot = self.encoder.getRadPerSec()
+			'''
+			last_theta, _ = self.state
 			if self.last_meas_time is None:
 				self.last_meas_time = time.time()
 				thetadot = 0
@@ -133,7 +132,8 @@ class PendulumEnv(gym.Env):
 				print('dtheta = {}'.format(dtheta))
 				print('dt = {}'.format(dt))
 				thetadot = dtheta/dt
-
+			'''
+			# Do we want to clip the measurement?
 			thetadot = np.clip(thetadot, -self.max_speed, self.max_speed)
 			return np.array([np.cos(theta), np.sin(theta), thetadot])
 
