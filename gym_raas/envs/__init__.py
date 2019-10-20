@@ -1,1 +1,1 @@
-from gym_raas.envs.Pendulum import PendulumEnv
+from gym_raas.envs.PendulumEnv import PendulumEnv

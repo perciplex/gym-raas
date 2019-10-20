@@ -85,7 +85,6 @@ class PendulumEnv(gym.Env):
 			newth = np.arctan2(y, x)
 
 		self.state = np.array([newth, newthdot])
-		print(self.state)
 		return self._get_obs(), costs, False, {}
 
 
