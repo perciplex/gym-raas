@@ -68,8 +68,8 @@ class Encoder:
 
     def getRadian(self):
         return self.step / self.steps_per_rev * 2 * pi
-    def getRadPerSec(self):
-        return self.vel * 1e-6 * 2 * pi / / self.steps_per_rev * 2 * pi
+    def getRadPerSec(self): # convert microsceonds to seconds and ticks to rads.
+        return self.vel * 1e-6 * 2 * pi / self.steps_per_rev
 
 
 class Motor:
