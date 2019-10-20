@@ -14,5 +14,5 @@ pip install -e .
 ```
 import gym
 import gym_raas
-env_pend = gym.make('pendulum-v0')
+env_pend = gym.make('gym_raas:pendulum-v0')
 ```
