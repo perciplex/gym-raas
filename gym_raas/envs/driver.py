@@ -129,7 +129,7 @@ if __name__ == "__main__":
     while True:
         motor.set_command(200)
         for i in range(5):
-        print("Angle: ", encoder.getRadian(), " RadPerSec: ",  encoder.getRadPerSec())
+            print("Angle: ", encoder.getRadian(), " RadPerSec: ",  encoder.getRadPerSec())
             sleep(0.1)
         print("Step: ", encoder.step)
         motor.set_command(-200)
