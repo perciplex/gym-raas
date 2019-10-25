@@ -7,11 +7,11 @@ env = gym.make('raaspendulum-v0')
 env.reset()
 obs = []
 for i in range(50):
-    observation, reward, done, info = env.step(1)
+    observation, reward, done, info = env.step([1])
     time.sleep(0.01)
     obs.append(obs)
 for i in range(50):
-    observation, reward, done, info = env.step(-1)
+    observation, reward, done, info = env.step([-1])
     time.sleep(0.01)
     obs.append(obs)
 obs = np.array(obs)
