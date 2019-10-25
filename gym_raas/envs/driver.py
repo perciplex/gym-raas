@@ -15,7 +15,7 @@ class Encoder:
         self.A = False
         self.B = False
         self.step = 0
-        self.prevTick = pigpio.get_current_tick()
+        self.prevTick = pi.get_current_tick()
         self.vel = 0 # velocity is is ticks per microsecond
 
         def pressA(gpio, level, tick):
