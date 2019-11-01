@@ -23,6 +23,7 @@ class PendulumEnv(gym.Env):
     def __init__(self, g=10.0, hardware=False):
 
         if "RAASPI" in os.environ:  # Check if RAASPI environment variable is set
+            print("Hardware mode is active!")
             hardware = True
 
         self.hardware = hardware
@@ -45,7 +46,7 @@ class PendulumEnv(gym.Env):
             context = zmq.Context()
 
             #  Socket to talk to server
-            print("Connecting to motor driver server…")
+            print("Connecting to motor driver server...")
             self.socket = context.socket(zmq.REQ)
             self.socket.connect("tcp://localhost:5555")
 
