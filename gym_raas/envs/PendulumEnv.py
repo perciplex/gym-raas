@@ -86,7 +86,7 @@ class PendulumEnv(gym.Env):
         elif self.hardware:
             print("Sending motor command for torque ".format(u))
 
-            self.socket.send_pyobj(tuple("Command", u))
+            self.socket.send_pyobj(("Command", u))
             x, y, newthdot = self._get_obs()
             newth = np.arctan2(y, x)
 
@@ -106,7 +106,7 @@ class PendulumEnv(gym.Env):
         elif self.hardware:
             print("Sending motor command to stop")
 
-            self.socket.send_pyobj(tuple("Command", 0))
+            self.socket.send_pyobj(("Command", 0))
             return self._get_obs()
 
     def _get_obs(self):
@@ -116,7 +116,7 @@ class PendulumEnv(gym.Env):
             return np.array([np.cos(theta), np.sin(theta), thetadot])
         elif self.hardware:
             print("Sending request for obs")
-            self.socket.send_pyobj(tuple("Poll"))
+            self.socket.send_pyobj(("Poll", None))
 
             #  Get the reply.
             theta, thetadot = self.socket.recv_pyobj()
