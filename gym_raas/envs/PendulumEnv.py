@@ -109,8 +109,8 @@ class PendulumEnv(gym.Env):
             print("Sending motor command to stop")
 
             self.socket.send_pyobj(("Command", 0))
-			_ = self.socket.recv_pyobj()
-			
+            _ = self.socket.recv_pyobj()
+
             return self._get_obs()
 
     def _get_obs(self):
