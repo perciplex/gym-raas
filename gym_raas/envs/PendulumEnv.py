@@ -70,11 +70,9 @@ class PendulumEnv(gym.Env):
 
         u = np.clip(u, -self.max_torque, self.max_torque)[0]
         self.last_u = u  # for rendering
-        self._get_obs()
-        th, thdot = self.state  # th := theta
-        costs = angle_normalize(th) ** 2 + 0.1 * thdot ** 2 + 0.001 * (u ** 2)
 
         if not self.hardware:
+            th, thdot = self.state  # th := theta
             newthdot = (
                 thdot
                 + (-3 * g / (2 * l) * np.sin(th + np.pi) + 3.0 / (m * l ** 2) * u) * dt
@@ -92,6 +90,8 @@ class PendulumEnv(gym.Env):
             x, y, newthdot = self._get_obs()
             newth = np.arctan2(y, x)
 
+        #costs = angle_normalize(th) ** 2 + 0.1 * thdot ** 2 + 0.001 * (u ** 2)
+        costs = angle_normalize(newth) ** 2 + 0.1 * newthdot ** 2 + 0.001 * (u ** 2)
         self.state = np.array([newth, newthdot])
         return self._get_obs(), costs, False, {}
 
