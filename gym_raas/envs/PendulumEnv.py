@@ -88,6 +88,7 @@ class PendulumEnv(gym.Env):
             print("Sending motor command for torque ".format(u))
 
             self.socket.send_pyobj(("Command", u))
+            _ = self.socket.recv_pyobj()
             x, y, newthdot = self._get_obs()
             newth = np.arctan2(y, x)
 
