@@ -48,7 +48,7 @@ class PendulumEnv(gym.Env):
             #  Socket to talk to server
             print("Connecting to motor driver server...")
             self.socket = context.socket(zmq.REQ)
-            self.socket.connect("tcp://localhost:5555")
+            self.socket.connect("tcp://172.17.0.1:5555")
 
         else:
             self.viewer = None
