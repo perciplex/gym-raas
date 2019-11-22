@@ -123,7 +123,8 @@ class PendulumEnv(gym.Env):
             self.socket.send_pyobj(("Poll", None))
 
             #  Get the reply.
-            theta, thetadot = self.socket.recv_pyobj()
+            theta_motor, thetadot = self.socket.recv_pyobj()
+            theta = theta_motor - np.pi
 
             # Do we want to clip the measurement?
             thetadot = np.clip(thetadot, -self.max_speed, self.max_speed)

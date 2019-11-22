@@ -1,0 +1,29 @@
+Metadata-Version: 2.1
+Name: raas-envs
+Version: 0.0.1
+Summary: Custom OpenAIgym environments for Perciplex RaaS platform
+Home-page: https://github.com/perciplex/raas-env
+Author: Max King, Benjamin Wiener, Declan Oller, Philip Zucker
+Author-email: team@perciplex.com
+License: UNKNOWN
+Description: # RaaS Gym Environments
+        These are the gym environments designed to be used with RaaS.
+        
+        Currently, we have the pendulum-v0 implementation.
+        
+        # Installation
+        ```
+        cd raas-envs
+        pip install -e .
+        ```
+        
+        
+        
+        
+        
+        
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
