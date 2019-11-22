@@ -3,7 +3,8 @@ import gym
 from gym import spaces
 from gym.utils import seeding
 import os
-
+import time
+import pickle
 """
 
 Pendulum class. Continuous action space. Meant to recreate Pendulum-v0,
@@ -38,6 +39,12 @@ class PendulumEnv(gym.Env):
             low=-self.max_torque, high=self.max_torque, shape=(1,), dtype=np.float32
         )
         self.observation_space = spaces.Box(low=-high, high=high, dtype=np.float32)
+
+        # storage of run
+        self.ts = []
+        self.obs = []
+        self.actions = []
+        self.costs = []
 
         # Create Motor and Encoder object
         if self.hardware:
@@ -93,13 +100,22 @@ class PendulumEnv(gym.Env):
             newth = np.arctan2(y, x)
 
         self.state = np.array([newth, newthdot])
-        return self._get_obs(), costs, False, {}
+
+        self.ts.append(time.time())
+        self.obs.append(self._get_obs())
+        self.actions.append(u)
+        self.costs.append(costs)
+        return self.obs[-1], costs, False, {}
 
     def reset(self):
         # Currently, uses randomness for initial conditions. We could either
         # remove this aspect, or do something like create initial randomness by
         # doing a quick sequence of actions before starting the episode, that
         # would effectively start it in a random state.
+
+        self.ts = []
+        self.obs = []
+        self.actions = []
         if not self.hardware:
             high = np.array([np.pi, 1])
             self.state = self.np_random.uniform(low=-high, high=high)
@@ -165,6 +181,13 @@ class PendulumEnv(gym.Env):
                 self.viewer.close()
                 self.viewer = None
         pass
+
+    def __del__(self):
+        if "RAASPI" in os.environ:
+            data = {"times": self.ts, "obs": self.obs, "actions": self.actions, "costs": self.costs}
+            with open("logs/pend_data.p", "wb") as f:
+                pickle.dump(data, f)
+
 
 
 def angle_normalize(x):
