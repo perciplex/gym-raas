@@ -93,7 +93,7 @@ class PendulumEnv(gym.Env):
         #costs = angle_normalize(th) ** 2 + 0.1 * thdot ** 2 + 0.001 * (u ** 2)
         costs = angle_normalize(newth) ** 2 + 0.1 * newthdot ** 2 + 0.001 * (u ** 2)
         self.state = np.array([newth, newthdot])
-        return self._get_obs(), costs, False, {}
+        return self._get_obs(), -costs, False, {}
 
     def reset(self):
         # Currently, uses randomness for initial conditions. We could either
