@@ -55,7 +55,7 @@ class PendulumEnv(gym.Env):
             #  Socket to talk to server
             print("Connecting to motor driver server...")
             self.socket = context.socket(zmq.REQ)
-            self.socket.connect("tcp://localhost:5555")
+            self.socket.connect("tcp://172.17.0.1:5555")
 
         else:
             self.viewer = None
@@ -77,11 +77,9 @@ class PendulumEnv(gym.Env):
 
         u = np.clip(u, -self.max_torque, self.max_torque)[0]
         self.last_u = u  # for rendering
-        self._get_obs()
-        th, thdot = self.state  # th := theta
-        costs = angle_normalize(th) ** 2 + 0.1 * thdot ** 2 + 0.001 * (u ** 2)
 
         if not self.hardware:
+            th, thdot = self.state  # th := theta
             newthdot = (
                 thdot
                 + (-3 * g / (2 * l) * np.sin(th + np.pi) + 3.0 / (m * l ** 2) * u) * dt
@@ -92,20 +90,22 @@ class PendulumEnv(gym.Env):
             newth = th + newthdot * dt
 
         elif self.hardware:
-            print("Sending motor command for torque ".format(u))
+            #print("Sending motor command for torque ".format(u))
 
             self.socket.send_pyobj(("Command", u))
             _ = self.socket.recv_pyobj()
             x, y, newthdot = self._get_obs()
             newth = np.arctan2(y, x)
 
+        #costs = angle_normalize(th) ** 2 + 0.1 * thdot ** 2 + 0.001 * (u ** 2)
+        costs = angle_normalize(newth) ** 2 + 0.1 * newthdot ** 2 + 0.001 * (u ** 2)
         self.state = np.array([newth, newthdot])
 
         self.ts.append(time.time())
         self.obs.append(self._get_obs())
         self.actions.append(u)
         self.costs.append(costs)
-        return self.obs[-1], costs, False, {}
+        return self.obs[-1], -costs, False, {}
 
     def reset(self):
         # Currently, uses randomness for initial conditions. We could either
@@ -122,7 +122,7 @@ class PendulumEnv(gym.Env):
             self.last_u = None
             return self._get_obs()
         elif self.hardware:
-            print("Sending motor command to stop")
+            #print("Sending motor command to stop")
 
             self.socket.send_pyobj(("Command", 0))
             _ = self.socket.recv_pyobj()
@@ -135,11 +135,13 @@ class PendulumEnv(gym.Env):
             theta, thetadot = self.state
             return np.array([np.cos(theta), np.sin(theta), thetadot])
         elif self.hardware:
-            print("Sending request for obs")
+            #print("Sending request for obs")
             self.socket.send_pyobj(("Poll", None))
 
             #  Get the reply.
-            theta, thetadot = self.socket.recv_pyobj()
+            theta_motor, thetadot = self.socket.recv_pyobj()
+            theta = theta_motor - np.pi
+
 
             # Do we want to clip the measurement?
             thetadot = np.clip(thetadot, -self.max_speed, self.max_speed)
