@@ -186,7 +186,7 @@ class PendulumEnv(gym.Env):
 
     def __del__(self):
         if "RAASPI" in os.environ:
-            data = {"times": self.ts, "obs": self.obs, "actions": self.actions, "costs": self.costs}
+            data = {"times": np.array(self.ts), "obs": np.array(self.obs), "actions": np.array(self.actions), "costs": np.array(self.costs)}
             print("## STARTING DATA SECTION ##")
             print(pickle.dumps(data)) # dump the pickled data dictionary as a string
             print("## ENDING DATA SECTION ##")
