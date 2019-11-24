@@ -185,6 +185,7 @@ class PendulumEnv(gym.Env):
         pass
 
     def __del__(self):
+        print("destroying gym-raas")
         if "RAASPI" in os.environ:
             data = {"times": self.ts, "obs": self.obs, "actions": self.actions, "costs": self.costs}
             print("## STARTING DATA SECTION ##")
