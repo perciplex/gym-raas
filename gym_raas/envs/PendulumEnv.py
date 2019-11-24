@@ -102,7 +102,7 @@ class PendulumEnv(gym.Env):
         self.state = np.array([newth, newthdot])
 
         self.ts.append(time.time())
-        self.obs.append(self._get_obs())
+        self.obs.append(list(self._get_obs()))
         self.actions.append(u)
         self.costs.append(costs)
         return self.obs[-1], -costs, False, {}
@@ -185,9 +185,8 @@ class PendulumEnv(gym.Env):
         pass
 
     def __del__(self):
-        print("destroying gym-raas")
         if "RAASPI" in os.environ:
-            data = {"times": np.array(self.ts), "obs": np.array(self.obs), "actions": np.array(self.actions), "costs": np.array(self.costs)}
+            data = {"times": self.ts, "obs": self.obs, "actions": self.actions, "costs": self.costs}
             print("## STARTING DATA SECTION ##")
             print(pickle.dumps(data)) # dump the pickled data dictionary as a string
             print("## ENDING DATA SECTION ##")
