@@ -185,6 +185,7 @@ class PendulumEnv(gym.Env):
         pass
 
     def __del__(self):
+        print("destroying gym-raas")
         if "RAASPI" in os.environ:
             data = {"times": np.array(self.ts), "obs": np.array(self.obs), "actions": np.array(self.actions), "costs": np.array(self.costs)}
             print("## STARTING DATA SECTION ##")
