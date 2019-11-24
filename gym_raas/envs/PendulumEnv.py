@@ -186,7 +186,8 @@ class PendulumEnv(gym.Env):
 
     def __del__(self):
         if "RAASPI" in os.environ:
-            data = {"times": self.ts, "obs": self.obs, "actions": self.actions, "costs": self.costs}
+            # in the destructor, anything from numpy is causeing issues, casting to ordinary lists and floats to avoid the problem
+            data = {"times": self.ts, "obs": [[float(x) for x in o]for o in self.obs],"actions": [float(a) for a in self.actions], "costs": [float(c) for c in self.costs]}
             print("## STARTING DATA SECTION ##")
             print(pickle.dumps(data)) # dump the pickled data dictionary as a string
             print("## ENDING DATA SECTION ##")
