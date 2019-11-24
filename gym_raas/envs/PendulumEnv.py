@@ -4,7 +4,7 @@ from gym import spaces
 from gym.utils import seeding
 import os
 import time
-import pickle
+import json
 """
 
 Pendulum class. Continuous action space. Meant to recreate Pendulum-v0,
@@ -188,9 +188,9 @@ class PendulumEnv(gym.Env):
         if "RAASPI" in os.environ:
             # in the destructor, anything from numpy is causeing issues, casting to ordinary lists and floats to avoid the problem
             data = {"times": self.ts, "obs": [[float(x) for x in o]for o in self.obs],"actions": [float(a) for a in self.actions], "costs": [float(c) for c in self.costs]}
-            print("## STARTING DATA SECTION ##")
-            print(pickle.dumps(data)) # dump the pickled data dictionary as a string
-            print("## ENDING DATA SECTION ##")
+            # dump the pickle file to a string 
+            print("## STARTING DATA SECTION ##"+json.dumps(data)+"## ENDING DATA SECTION ##")
+            
             # TODO: Implement a version that saves the data to a file and sends it to the host
             #with open("logs/pend_data.p", "wb") as f:
             #    pickle.dump(data, f)
