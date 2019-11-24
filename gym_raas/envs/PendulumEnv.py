@@ -187,8 +187,12 @@ class PendulumEnv(gym.Env):
     def __del__(self):
         if "RAASPI" in os.environ:
             data = {"times": self.ts, "obs": self.obs, "actions": self.actions, "costs": self.costs}
-            with open("logs/pend_data.p", "wb") as f:
-                pickle.dump(data, f)
+            print("## STARTING DATA SECTION ##")
+            print(pickle.dumps(data)) # dump the pickled data dictionary as a string
+            print("## ENDING DATA SECTION ##")
+            # TODO: Implement a version that saves the data to a file and sends it to the host
+            #with open("logs/pend_data.p", "wb") as f:
+            #    pickle.dump(data, f)
 
 
 
