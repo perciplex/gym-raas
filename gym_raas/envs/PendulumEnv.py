@@ -193,12 +193,11 @@ class PendulumEnv(gym.Env):
                 "actions": [float(a) for a in self.actions],
                 "costs": [float(c) for c in self.costs],
             }
+
+            logs_file = open("/mnt/log/log.json", "w")
             # dump the pickle file to a string
-            print(
-                "## STARTING DATA SECTION ##"
-                + json.dump(data, "/mnt/log/log.json")
-                + "## ENDING DATA SECTION ##"
-            )
+            json.dump(data, logs_file)
+            logs_file.close()
 
             # TODO: Implement a version that saves the data to a file and sends it to the host
             # with open("logs/pend_data.p", "wb") as f:
