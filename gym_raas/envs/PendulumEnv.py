@@ -66,7 +66,7 @@ class PendulumEnv(gym.Env):
             # See comment in random() below about random initial conditions.
 
         self.reset()
-        atexit.register(dump_log)
+        atexit.register(self.dump_log)
 
     def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
