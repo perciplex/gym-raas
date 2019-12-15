@@ -28,6 +28,7 @@ class PendulumEnv(gym.Env):
         if "RAASPI" in os.environ:  # Check if RAASPI environment variable is set
             print("Hardware mode is active!")
             hardware = True
+            atexit.register(self.dump_log) # register the log dump if running on raas hardware
 
         self.hardware = hardware
 
@@ -66,7 +67,6 @@ class PendulumEnv(gym.Env):
             # See comment in random() below about random initial conditions.
 
         self.reset()
-        atexit.register(self.dump_log)
 
     def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
@@ -196,14 +196,7 @@ class PendulumEnv(gym.Env):
                 "costs": [float(c) for c in self.costs],
             }
 
-            #logs_file = open('/tmp/log.json', 'w')
-            # dump the pickle file to a string
             json.dump(data, open("/tmp/log.json","w"))
-            #logs_file.close()
-
-            # TODO: Implement a version that saves the data to a file and sends it to the host
-            # with open("logs/pend_data.p", "wb") as f:
-            #    pickle.dump(data, f)
             
     def __del__(self):
         #self.dump_log()
