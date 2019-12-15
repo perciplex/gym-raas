@@ -5,6 +5,7 @@ from gym.utils import seeding
 import os
 import time
 import json
+import atexit
 
 """
 
@@ -65,6 +66,7 @@ class PendulumEnv(gym.Env):
             # See comment in random() below about random initial conditions.
 
         self.reset()
+        atexit.register(dump_log)
 
     def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
@@ -184,7 +186,7 @@ class PendulumEnv(gym.Env):
                 self.viewer = None
         pass
 
-    def __del__(self):
+    def dump_log(self):
         if "RAASPI" in os.environ:
             # in the destructor, anything from numpy is causeing issues, casting to ordinary lists and floats to avoid the problem
             data = {
@@ -202,7 +204,10 @@ class PendulumEnv(gym.Env):
             # TODO: Implement a version that saves the data to a file and sends it to the host
             # with open("logs/pend_data.p", "wb") as f:
             #    pickle.dump(data, f)
-
+            
+    def __del__(self):
+        #self.dump_log()
+        pass
 
 def angle_normalize(x):
     return ((x + np.pi) % (2 * np.pi)) - np.pi
