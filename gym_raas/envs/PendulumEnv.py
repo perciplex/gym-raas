@@ -4,8 +4,9 @@ from gym import spaces
 from gym.utils import seeding
 import os
 import time
-import pickle
-import copy
+import json
+import atexit
+
 """
 
 Pendulum class. Continuous action space. Meant to recreate Pendulum-v0,
@@ -27,6 +28,7 @@ class PendulumEnv(gym.Env):
         if "RAASPI" in os.environ:  # Check if RAASPI environment variable is set
             print("Hardware mode is active!")
             hardware = True
+            atexit.register(self.dump_log) # register the log dump if running on raas hardware
 
         self.hardware = hardware
 
@@ -92,14 +94,14 @@ class PendulumEnv(gym.Env):
             newth = th + newthdot * dt
 
         elif self.hardware:
-            #print("Sending motor command for torque ".format(u))
+            # print("Sending motor command for torque ".format(u))
 
             self.socket.send_pyobj(("Command", u))
             _ = self.socket.recv_pyobj()
             x, y, newthdot = self._get_obs()
             newth = np.arctan2(y, x)
 
-        #costs = angle_normalize(th) ** 2 + 0.1 * thdot ** 2 + 0.001 * (u ** 2)
+        # costs = angle_normalize(th) ** 2 + 0.1 * thdot ** 2 + 0.001 * (u ** 2)
         costs = angle_normalize(newth) ** 2 + 0.1 * newthdot ** 2 + 0.001 * (u ** 2)
         self.state = np.array([newth, newthdot])
 
@@ -127,7 +129,7 @@ class PendulumEnv(gym.Env):
             self.last_u = None
             return self._get_obs()
         elif self.hardware:
-            #print("Sending motor command to stop")
+            # print("Sending motor command to stop")
 
             self.socket.send_pyobj(("Command", 0))
             _ = self.socket.recv_pyobj()
@@ -140,13 +142,12 @@ class PendulumEnv(gym.Env):
             theta, thetadot = self.state
             return np.array([np.cos(theta), np.sin(theta), thetadot])
         elif self.hardware:
-            #print("Sending request for obs")
+            # print("Sending request for obs")
             self.socket.send_pyobj(("Poll", None))
 
             #  Get the reply.
             theta_motor, thetadot = self.socket.recv_pyobj()
             theta = theta_motor - np.pi
-
 
             # Do we want to clip the measurement?
             thetadot = np.clip(thetadot, -self.max_speed, self.max_speed)
@@ -189,14 +190,21 @@ class PendulumEnv(gym.Env):
                 self.viewer = None
         pass
 
+    def dump_log(self):
+        if "RAASPI" in os.environ:
+            # in the destructor, anything from numpy is causeing issues, casting to ordinary lists and floats to avoid the problem
+            data = {
+                "times": self.ts,
+                "obs": [[float(x) for x in o] for o in self.obs],
+                "actions": [float(a) for a in self.actions],
+                "costs": [float(c) for c in self.costs],
+            }
+
+            json.dump(data, open("/tmp/log.json","w"))
+            
     def __del__(self):
-        if True: #"RAASPI" in os.environ: "obs": self.obs, 
-            data = {"times": self.ts, "obs": [[float(x) for x in o]for o in self.obs],"actions": [float(a) for a in self.actions], "costs": [float(c) for c in self.costs]}
-            #data = copy.copy(data)
-            with open("logs/pend_data.p", "wb") as f:
-                pickle.dump(data, f)
-
-
+        #self.dump_log()
+        pass
 
 
 
