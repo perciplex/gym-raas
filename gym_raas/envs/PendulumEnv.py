@@ -5,6 +5,7 @@ from gym.utils import seeding
 import os
 import time
 import pickle
+import copy
 """
 
 Pendulum class. Continuous action space. Meant to recreate Pendulum-v0,
@@ -21,7 +22,7 @@ to actually interface with the env.
 class PendulumEnv(gym.Env):
     metadata = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": 30}
     # We should perhaps set hardware via an environment variable?
-    def __init__(self, g=10.0, hardware=False):
+    def __init__(self, g=9.8, hardware=False):
 
         if "RAASPI" in os.environ:  # Check if RAASPI environment variable is set
             print("Hardware mode is active!")
@@ -71,8 +72,8 @@ class PendulumEnv(gym.Env):
 
     def step(self, u):
         g = self.g
-        m = 1.0
-        l = 1.0
+        m = 0.04 #40 gram pendulum
+        l = 0.5 # 50 cm stick
         dt = self.dt
 
         u = np.clip(u, -self.max_torque, self.max_torque)[0]
@@ -80,9 +81,10 @@ class PendulumEnv(gym.Env):
 
         if not self.hardware:
             th, thdot = self.state  # th := theta
+            torque = 0.25/100 * (u * 250 / 1000) # based on our pwm scaling of u by 250/1000, and stated motor torque of 0.25kg cm
             newthdot = (
                 thdot
-                + (-3 * g / (2 * l) * np.sin(th + np.pi) + 3.0 / (m * l ** 2) * u) * dt
+                + (-3 * g / (2 * l) * np.sin(th + np.pi) + 3.0 / (m * l ** 2) * torque) * dt
             )
             newthdot = np.clip(
                 newthdot, -self.max_speed, self.max_speed
@@ -102,9 +104,12 @@ class PendulumEnv(gym.Env):
         self.state = np.array([newth, newthdot])
 
         self.ts.append(time.time())
-        self.obs.append(self._get_obs())
+        self.obs.append(list(self._get_obs()))
         self.actions.append(u)
         self.costs.append(costs)
+        data = {"times": self.ts, "obs": self.obs, "actions": self.actions, "costs": self.costs}
+        #print(pickle.dumps(data))
+
         return self.obs[-1], -costs, False, {}
 
     def reset(self):
@@ -185,10 +190,13 @@ class PendulumEnv(gym.Env):
         pass
 
     def __del__(self):
-        if "RAASPI" in os.environ:
-            data = {"times": self.ts, "obs": self.obs, "actions": self.actions, "costs": self.costs}
+        if True: #"RAASPI" in os.environ: "obs": self.obs, 
+            data = {"times": self.ts, "obs": [[float(x) for x in o]for o in self.obs],"actions": [float(a) for a in self.actions], "costs": [float(c) for c in self.costs]}
+            #data = copy.copy(data)
             with open("logs/pend_data.p", "wb") as f:
                 pickle.dump(data, f)
+
+
 
 
 
