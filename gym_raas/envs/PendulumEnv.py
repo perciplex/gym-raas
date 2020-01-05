@@ -189,7 +189,7 @@ class PendulumEnv(gym.Env):
                 self.viewer = None
         pass
 
-    def dump_log(self):
+    def dump_log(self, *args):
         if "RAASPI" in os.environ:
             # in the destructor, anything from numpy is causeing issues, casting to ordinary lists and floats to avoid the problem
             data = {
