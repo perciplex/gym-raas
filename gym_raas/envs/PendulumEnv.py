@@ -120,9 +120,6 @@ class PendulumEnv(gym.Env):
         # doing a quick sequence of actions before starting the episode, that
         # would effectively start it in a random state.
 
-        self.ts = []
-        self.obs = []
-        self.actions = []
         if not self.hardware:
             high = np.array([np.pi, 1])
             self.state = self.np_random.uniform(low=-high, high=high)
