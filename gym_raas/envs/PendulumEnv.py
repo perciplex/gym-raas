@@ -6,6 +6,7 @@ import os
 import time
 import json
 import atexit
+import signal
 
 """
 
@@ -29,6 +30,7 @@ class PendulumEnv(gym.Env):
             print("Hardware mode is active!")
             hardware = True
             atexit.register(self.dump_log) # register the log dump if running on raas hardware
+            signal.signal(signal.SIGTERM, self.dump_log)
 
         self.hardware = hardware
 
