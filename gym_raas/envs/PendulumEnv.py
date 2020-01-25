@@ -62,11 +62,14 @@ class PendulumEnv(gym.Env):
             self.socket = context.socket(zmq.REQ)
             self.socket.connect("tcp://172.17.0.1:5555")
 
+            self.socket.send_pyobj(("Reset", 0))
+            _ = self.socket.recv_pyobj()
         else:
             self.viewer = None
 
             self.seed()
             # See comment in random() below about random initial conditions.
+        
 
         self.reset()
 
