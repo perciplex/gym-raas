@@ -85,6 +85,8 @@ class PendulumEnv(gym.Env):
 
         u = np.clip(u, -self.max_torque, self.max_torque)[0]
         self.last_u = u  # for rendering
+        th, thdot = self.state
+        costs = angle_normalize(th) ** 2 + 0.1 * thdot ** 2 + 0.001 * (u ** 2)
 
         if not self.hardware:
             th, thdot = self.state  # th := theta
@@ -93,10 +95,10 @@ class PendulumEnv(gym.Env):
                 thdot
                 + (-3 * g / (2 * l) * np.sin(th + np.pi) + 3.0 / (m * l ** 2) * torque) * dt
             )
+            newth = th + newthdot * dt
             newthdot = np.clip(
                 newthdot, -self.max_speed, self.max_speed
             )  # pylint: disable=E1111
-            newth = th + newthdot * dt
 
         elif self.hardware:
             # print("Sending motor command for torque ".format(u))
@@ -106,8 +108,6 @@ class PendulumEnv(gym.Env):
             x, y, newthdot = self._get_obs()
             newth = np.arctan2(y, x)
 
-        # costs = angle_normalize(th) ** 2 + 0.1 * thdot ** 2 + 0.001 * (u ** 2)
-        costs = angle_normalize(newth) ** 2 + 0.1 * newthdot ** 2 + 0.001 * (u ** 2)
         self.state = np.array([newth, newthdot])
 
         self.ts.append(time.time())
