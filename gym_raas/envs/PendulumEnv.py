@@ -64,6 +64,9 @@ class PendulumEnv(gym.Env):
 
             self.socket.send_pyobj(("Reset", 0))
             _ = self.socket.recv_pyobj()
+
+            self._get_obs()
+
         else:
             self.viewer = None
 
@@ -90,7 +93,7 @@ class PendulumEnv(gym.Env):
 
         if not self.hardware:
             th, thdot = self.state  # th := theta
-            torque = 0.25/10 * (u * 250 / 1000) # based on our pwm scaling of u by 250/1000, and stated motor torque of 0.25kg cm
+            torque = 30*0.25/100 * (u * 250 / 1000) # based on our pwm scaling of u by 250/1000, and stated motor torque of 0.25kg cm
             newthdot = (
                 thdot
                 + (-3 * g / (2 * l) * np.sin(th + np.pi) + 3.0 / (m * l ** 2) * torque) * dt
@@ -150,6 +153,8 @@ class PendulumEnv(gym.Env):
             #  Get the reply.
             theta_motor, thetadot = self.socket.recv_pyobj()
             theta = theta_motor - np.pi
+
+            self.state = np.array([theta thetadot])
 
             # Do we want to clip the measurement?
             thetadot = np.clip(thetadot, -self.max_speed, self.max_speed)
