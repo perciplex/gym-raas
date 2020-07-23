@@ -154,7 +154,7 @@ class PendulumEnv(gym.Env):
             theta_motor, thetadot = self.socket.recv_pyobj()
             theta = theta_motor - np.pi
 
-            self.state = np.array([theta thetadot])
+            self.state = np.array([theta, thetadot])
 
             # Do we want to clip the measurement?
             thetadot = np.clip(thetadot, -self.max_speed, self.max_speed)
