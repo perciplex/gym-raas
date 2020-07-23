@@ -69,7 +69,7 @@ class PendulumEnv(gym.Env):
 
             self.seed()
             # See comment in random() below about random initial conditions.
-        
+
 
         self.reset()
 
@@ -88,7 +88,7 @@ class PendulumEnv(gym.Env):
 
         if not self.hardware:
             th, thdot = self.state  # th := theta
-            torque = 0.25/100 * (u * 250 / 1000) # based on our pwm scaling of u by 250/1000, and stated motor torque of 0.25kg cm
+            torque = 0.25/10 * (u * 250 / 1000) # based on our pwm scaling of u by 250/1000, and stated motor torque of 0.25kg cm
             newthdot = (
                 thdot
                 + (-3 * g / (2 * l) * np.sin(th + np.pi) + 3.0 / (m * l ** 2) * torque) * dt
@@ -203,7 +203,7 @@ class PendulumEnv(gym.Env):
             }
 
             json.dump(data, open("/tmp/log.json","w"))
-            
+
     def __del__(self):
         #self.dump_log()
         pass
