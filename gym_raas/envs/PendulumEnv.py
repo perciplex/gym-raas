@@ -108,6 +108,7 @@ class PendulumEnv(gym.Env):
 
             self.socket.send_pyobj(("Command", u))
             _ = self.socket.recv_pyobj()
+            time.sleep(self.dt)
             x, y, newthdot = self._get_obs()
             newth = np.arctan2(y, x)
 
