@@ -116,13 +116,14 @@ class PendulumEnv(gym.Env):
         self.state = np.array([newth, newthdot])
 
         self.ts.append(time.time())
-        self.obs.append(list(self._get_obs()))
+        obs = self._get_obs()  # Return type np.ndarray, not casted to list!
+        self.obs.append(list(obs))
         self.actions.append(u)
         self.costs.append(costs)
         data = {"times": self.ts, "obs": self.obs, "actions": self.actions, "costs": self.costs}
         #print(pickle.dumps(data))
 
-        return self.obs[-1], -costs, False, {}
+        return obs, -costs, False, {}
 
     def reset(self):
         # Currently, uses randomness for initial conditions. We could either
