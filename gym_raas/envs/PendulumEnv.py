@@ -34,7 +34,7 @@ class PendulumEnv(gym.Env):
 
         self.hardware = hardware
 
-        self.max_speed = 8
+        self.max_speed = 20
         self.max_torque = 2.0
         self.dt = 0.05
         self.g = g
@@ -81,9 +81,11 @@ class PendulumEnv(gym.Env):
         return [seed]
 
     def step(self, u):
-        g = self.g
-        m = 0.04 #40 gram pendulum
-        l = 0.5 # 50 cm stick
+        gravity_factor = 27.
+        dynamic_friction_factor = -2.
+        static_friction_factor = 0.
+        torque_factor = 8.
+
         dt = self.dt
 
         u = np.clip(u, -self.max_torque, self.max_torque)[0]
@@ -93,10 +95,9 @@ class PendulumEnv(gym.Env):
 
         if not self.hardware:
             th, thdot = self.state  # th := theta
-            torque = 30*0.25/100 * (u * 250 / 1000) # based on our pwm scaling of u by 250/1000, and stated motor torque of 0.25kg cm
             newthdot = (
                 thdot
-                + (-3 * g / (2 * l) * np.sin(th + np.pi) + 3.0 / (m * l ** 2) * torque) * dt
+                + ( gravity_factor * np.sin(th) + torque_factor * u + dynamic_friction_factor * thdot) * dt
             )
             newth = th + newthdot * dt
             newthdot = np.clip(
@@ -156,8 +157,6 @@ class PendulumEnv(gym.Env):
 
             self.state = np.array([theta, thetadot])
 
-            # Do we want to clip the measurement?
-            thetadot = np.clip(thetadot, -self.max_speed, self.max_speed)
             return np.array([np.cos(theta), np.sin(theta), thetadot])
 
     def render(self, mode="human"):
