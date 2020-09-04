@@ -8,40 +8,32 @@ import json
 import atexit
 import signal
 
+"""
 
-def angle_normalize(x):
-    """
-    Normalize angles between 0-2PI
-    """
-    return ((x + np.pi) % (2 * np.pi)) - np.pi
+Pendulum class. Continuous action space. Meant to recreate Pendulum-v0,
+which is implemented here:
+
+https://github.com/openai/gym/blob/master/gym/envs/classic_control/pendulum.py
+
+Most of it is kept the same (reward structure, etc), except the part that has
+to actually interface with the env.
+
+"""
 
 
 class PendulumEnv(gym.Env):
-    """
-    Pendulum class. Continuous action space. Meant to recreate Pendulum-v0,
-    which is implemented here:
-
-    https://github.com/openai/gym/blob/master/gym/envs/classic_control/pendulum.py
-
-    Most of it is kept the same (reward structure, etc), except the part that has
-    to actually interface with the env.
-    """
-
     metadata = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": 30}
-
+    # We should perhaps set hardware via an environment variable?
     def __init__(self, g=9.8, hardware=False):
-        # If RAASPI environment variable set then configure for raas hardware.
-        if "RAASPI" in os.environ:
+
+        if "RAASPI" in os.environ:  # Check if RAASPI environment variable is set
             print("Hardware mode is active!")
             hardware = True
-
-            # register the log dump if running on raas hardware
-            atexit.register(self.dump_log)
+            atexit.register(self.dump_log) # register the log dump if running on raas hardware
             signal.signal(signal.SIGTERM, self.dump_log)
 
         self.hardware = hardware
 
-        # Physical pendulum characteristics
         self.max_speed = 20
         self.max_torque = 2.0
         self.dt = 0.05
@@ -65,7 +57,7 @@ class PendulumEnv(gym.Env):
 
             context = zmq.Context()
 
-            # Socket to talk to server
+            #  Socket to talk to server
             print("Connecting to motor driver server...")
             self.socket = context.socket(zmq.REQ)
             self.socket.connect("tcp://172.17.0.1:5555")
@@ -81,6 +73,7 @@ class PendulumEnv(gym.Env):
             self.seed()
             # See comment in random() below about random initial conditions.
 
+
         self.reset()
 
     def seed(self, seed=None):
@@ -88,10 +81,10 @@ class PendulumEnv(gym.Env):
         return [seed]
 
     def step(self, u):
-        gravity_factor = 27.0
-        dynamic_friction_factor = -2.0
-        static_friction_factor = 0.0
-        torque_factor = 8.0
+        gravity_factor = 27.
+        dynamic_friction_factor = -2.
+        static_friction_factor = 0.
+        torque_factor = 8.
 
         dt = self.dt
 
@@ -104,12 +97,7 @@ class PendulumEnv(gym.Env):
             th, thdot = self.state  # th := theta
             newthdot = (
                 thdot
-                + (
-                    gravity_factor * np.sin(th)
-                    + torque_factor * u
-                    + dynamic_friction_factor * thdot
-                )
-                * dt
+                + ( gravity_factor * np.sin(th) + torque_factor * u + dynamic_friction_factor * thdot) * dt
             )
             newth = th + newthdot * dt
             newthdot = np.clip(
@@ -132,6 +120,8 @@ class PendulumEnv(gym.Env):
         self.obs.append(list(obs))
         self.actions.append(u)
         self.costs.append(costs)
+        data = {"times": self.ts, "obs": self.obs, "actions": self.actions, "costs": self.costs}
+        #print(pickle.dumps(data))
 
         return obs, -costs, False, {}
 
@@ -148,6 +138,7 @@ class PendulumEnv(gym.Env):
             return self._get_obs()
         elif self.hardware:
             # print("Sending motor command to stop")
+
             self.socket.send_pyobj(("Command", 0))
             _ = self.socket.recv_pyobj()
 
@@ -171,6 +162,7 @@ class PendulumEnv(gym.Env):
             return np.array([np.cos(theta), np.sin(theta), thetadot])
 
     def render(self, mode="human"):
+        # We need to figure out this path asset
         if not self.hardware:
             if self.viewer is None:
                 from gym.envs.classic_control import rendering
@@ -216,8 +208,13 @@ class PendulumEnv(gym.Env):
                 "costs": [float(c) for c in self.costs],
             }
 
-            json.dump(data, open("/tmp/log.json", "w"))
+            json.dump(data, open("/tmp/log.json","w"))
 
     def __del__(self):
-        # self.dump_log()
+        #self.dump_log()
         pass
+
+
+
+def angle_normalize(x):
+    return ((x + np.pi) % (2 * np.pi)) - np.pi
